@@ -1,6 +1,7 @@
-Encoding.pm
+Changes
 Makefile.PL
 MANIFEST
 README
-ChangeLog
-t/basic.t
+t/00basic.t
+lib/HTML/Encoding.pm
+META.yml                                 Module meta-data (added by MakeMaker)

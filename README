@@ -1,41 +1,16 @@
-HTML::Encoding
-==============
+HTML-Encoding version 0.50
+==========================
 
-This module can be used to determine the character encoding
-of HTML and XHTML files. It reports explicitly given
-informations on the encoding. It tries to read
+The README is used to introduce the module and provide instructions on
+how to install the module, any machine dependencies it may have (for
+example C compilers and installed libraries) and any other information
+that should be provided before the module is installed.
 
-  * the Content-Type headers 'charset' parameter of
-    an HTTP::Headers or Mail::Header object
-
-  * the XML declaration of XHTML files
-
-  * the byte order mark at the beginning of the file
-
-  * a meta element like
-
-      <meta http-equiv='Content-Type'
-            content='text/html;charset=iso-8859-1'>
-
-You have always to know the encoding of (X)HTML files if
-you are trying to process them, e.g. parse it with
-HTML::Parser or extracting links with HTML::LinkExtor.
-It is not safe and forbidden by HTML 4 to assume any
-default encoding like US-ASCII or ISO-8859-1. Documents
-may even be not encoded in some 8 bit character encoding
-but may use UTF-16 or not compatible with US-ASCII like
-EBCDIC encoded files. To assume some US-ASCII compatible
-encoding could fail and even break document. Consider you
-are retrieving an UTF-8 encoded file and pass it to some
-other application, e.g. a web browser labeld as ISO-8859-1,
-the user will see lots of for him weired characters.
-
-This module provides an easy to use method to circumvent
-all those possible problems. It may however fail if the
-page author didn't supply character encoding informations;
-this is indeed a problem, since if this module cannot
-determine the encoding, no one can and the document is said
-to break.
+A README file is required for CPAN modules since CPAN extracts the
+README file from a module distribution so that people browsing the
+archive can use it get an idea of the modules uses. It is usually a
+good idea to provide version information here so that people can
+decide whether fixes for the module are worth downloading.
 
 INSTALLATION
 
@@ -46,9 +21,18 @@ To install this module type the following:
    make test
    make install
 
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+  blah blah blah
+
 COPYRIGHT AND LICENCE
 
-This library is free software; you can redistribute it
-and/or modify it under the same terms as Perl itself.
+Put the correct copyright and licence information here.
 
-Copyright (C) 2001 Björn Höhrmann <bjoern@hoehrmann.de>
+Copyright (C) 2004 by Bjoern Hoehrmann <bjoern@hoehrmann.de>
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself, either Perl version 5.8.2 or,
+at your option, any later version of Perl 5 you may have available.
