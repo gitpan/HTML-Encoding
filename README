@@ -1,5 +1,5 @@
-HTML::Encoding version 0.01
-===========================
+HTML::Encoding
+==============
 
 This module can be used to determine the character encoding
 of HTML and XHTML files. It reports explicitly given

@@ -1,3 +1,10 @@
+0.02	Bjoern Hoehrmann <bjoern@hoehrmann.de>
+
+	* fixed nasty bug when parsing charset
+	  parameter
+
+	* added new tests to t/basic.t
+
 0.01	Bjoern Hoehrmann <bjoern@hoehrmann.de>
 
 	* First public release

@@ -1,5 +1,5 @@
 #
-# $Id: Encoding.pm,v 0.01 2001/08/01 03:30:16 bjoern Exp $
+# $Id: Encoding.pm,v 0.02 2001/08/02 03:30:16 bjoern Exp $
 #
 
 package HTML::Encoding;
@@ -146,7 +146,7 @@ use constant BOM_MAP => {
 our @EXPORT = qw/get_encoding/;
 our @EXPORT_OK = qw/FROM_HEADER FROM_BOM FROM_XMLDECL FROM_META/;
 our %EXPORT_TAGS = (constants => [ @EXPORT_OK ]);
-our $VERSION = 0.01;
+our $VERSION = 0.02;
 
 # EBCDIC to US-ASCII table for characters in the XML declaration
 
@@ -197,7 +197,7 @@ sub get_encoding
 
       my $charset = (grep { /^charset=/i } $vars{headers}->content_type)[0];
       if (defined $charset) {
-          my $e = $2 if $charset =~ /^charset=(['"]?)(.+?)\1/i;
+          my $e = $2 if $charset =~ /^charset=(['"]?)(.+)\1/i;
           push @encodings, { source => FROM_HEADER, encoding => $e } if defined $e;
       }
   } elsif (defined $vars{headers} and
@@ -205,7 +205,7 @@ sub get_encoding
   {
       my $charset = $vars{headers}->get('content-type');
       if (defined $charset) {
-          my $e = $2 if $charset =~ /^charset=(['"]?)(.+?)\1/i;
+          my $e = $2 if $charset =~ /^charset=(['"]?)(.+)\1/i;
           push @encodings, { source => FROM_HEADER, encoding => lc $e } if defined $e;
       }
   }
@@ -321,7 +321,7 @@ sub get_encoding
                 {
                     my $charset = (grep { /^charset=/i } split /\s*;\s*/, lc $attrs->{'content'})[0];
                     if (defined $charset) {
-                        my $e = $2 if $charset =~ /^charset=(['"]?)(.+?)\1/i;
+                        my $e = $2 if $charset =~ /^charset=(['"]?)(.+)\1/i;
                         if (defined $e) {
                             push @encodings, { source => FROM_META, encoding => lc $e };
                             $p->eof;
