@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 
 our @EXPORT_OK =
 qw/
@@ -469,9 +469,16 @@ sub encoding_from_http_message
         return wantarray ? (protocol_default => $txml) : $txml
           if defined $txml and $mess->content_type =~ $is_t_xml;
           
-        return wantarray
-          ? encoding_from_xml_document($mess->content, encodings => $encodings)
-          : scalar encoding_from_xml_document($mess->content, encodings => $encodings);
+        if (wantarray)
+        {
+            my @xml = encoding_from_xml_document($mess->content, encodings => $encodings);
+            return @xml if @xml;
+        }
+        else
+        {
+            my $xml = scalar encoding_from_xml_document($mess->content, encodings => $encodings);
+            return $xml if defined $xml;
+        }
         
         return wantarray ? (default => $xml_d) : $xml_d if defined $default;
     }
@@ -480,10 +487,17 @@ sub encoding_from_http_message
     {
         return wantarray ? (protocol => $charset) : $charset
           if defined $charset;
-
-        return wantarray
-          ? encoding_from_html_document($mess->content, encodings => $encodings, xhtml => $xhtml)
-          : scalar encoding_from_html_document($mess->content, encodings => $encodings, xhtml => $xhtml);
+          
+        if (wantarray)
+        {
+            my @html = encoding_from_html_document($mess->content, encodings => $encodings, xhtml => $xhtml);
+            return @html if @html;
+        }
+        else
+        {
+            my $html = scalar encoding_from_html_document($mess->content, encodings => $encodings, xhtml => $xhtml);
+            return $html if defined $html;
+        }
 
         return wantarray ? (default => $html_d) : $html_d if defined $default;
     }

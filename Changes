@@ -1,5 +1,9 @@
 Revision history for Perl extension HTML::Encoding.
 
+0.52  Tue Dec 14 09:25:00 2004
+	- encoding_from_http_message encoding defaulting did
+	  not work as intended, fixed.
+
 0.51  Tue Dec 14 08:45:00 2004
 	- encoding_from_html_document returned a list in scalar
 	  context if the document had a XML declaration, fixed.
