@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.50';
+our $VERSION = '0.51';
 
 our @EXPORT_OK =
 qw/
@@ -410,7 +410,10 @@ sub encoding_from_html_document
                     ? encoding_from_xml_document($text, encodings => $encodings)
                     : scalar encoding_from_xml_document($text, encodings => $encodings);
         
-        return @xml if @xml and defined $xml[0];
+        return wantarray
+          ? @xml
+          : $xml[0]
+            if @xml and defined $xml[0];
     }
     else
     {
