@@ -1,0 +1,6 @@
+Encoding.pm
+Makefile.PL
+MANIFEST
+README
+ChangeLog
+t/basic.t
