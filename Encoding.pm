@@ -1,121 +1,8 @@
 #
-# $Id: Encoding.pm,v 0.02 2001/08/02 03:30:16 bjoern Exp $
+# $Id: Encoding.pm,v 0.03 2001/08/02 06:30:16 bjoern Exp $
 #
 
 package HTML::Encoding;
-
-=head1 NAME
-
-HTML::Encoding - Determine the encoding of (X)HTML documents
-
-=head1 SYNOPSIS
-
-  use HTML::Encoding;
-  # ...
-  my $encoding = get_encoding
-
-    headers       => $r->headers,
-    string        => $r->content,
-    check_bom     => 1,
-    check_xmldecl => 0,
-    check_meta    => 1
-
-=head1 DESCRIPTION
-
-This module can be used to determine the encoding of HTML and XHTML files. It
-reports I<explicitly> given encoding informations, i.e.
-
-=over 2
-
-=item *
-
-the HTTP Content-Type headers charset parameter
-
-=item *
-
-the XML declaration
-
-=item *
-
-the byte order mark (BOM)
-
-=item *
-
-the meta element with http-equiv set to Content-Type
-
-=back
-
-=over 4
-
-=item get_encoding( %options )
-
-This function takes a hash as argument that stores all configuration
-options. The following are available:
-
-=over 4
-
-=item string
-
-A string containing the (X)HTML document. The function assumes that all
-possibly applied Content-(Transfer-)Encodings are removed.
-
-=item headers
-
-An HTTP::Headers or Mail::Header object to extract the Content-Type
-header. Please note that LWP::UserAgent stores header values from
-meta elements by default in the response header. To turn this of
-call the $ua->parse_head() method with a false value. get_encoding()
-always uses only the first given Content-Type: header; this should
-be the one given in the original HTTP header in most cases.
-
-=item check_xmldecl
-
-Checks the document for an XML declaration. If one is found, it tries to
-extract the value of the C<encoding> pseudo-attribute. Please note that
-the XML declaration must not be preceded by any character. The default is
-no.
-
-=item check_bom
-
-Checks the document for a byte order mark (BOM). The default is yes; it's
-always yes if check_xmldecl is set to a true value.
-
-=item check_meta
-
-Checks the document for a meta element like
-
-  <meta http-equiv='Content-Type'
-        content='text/html;charset=iso-8859-1'>
-
-using HTML::Parser 3.21 or later (or does nothing if it fails to load
-that module). The default is yes.
-
-=back
-
-In list context it returns a list of hash refernces. Each hash references
-consists of two key/value pairs, e.g.
-
-  [
-    { source => 4, encoding => 'utf-8' },
-    { source => 1, encoding => 'utf-8' }
-  ]
-
-The source value is mapped to one of the constants FROM_META, FROM_BOM,
-FROM_XMLDECL and FROM_HEADER. You can import these constants solely
-into your namespace or using the C<:constants> symbol, e.g.
-
-  use HTML::Encoding ':constants';
-
-In scalar context it returns the value of the encoding key from the first
-entry in the list. The list is sorted according to the origin of the encoding
-information, see the list at the beginning of this document.
-
-If no I<explicit> encoding information is found, it returns undef. It's up to
-you to implement defaulting behaivour if this is applicable.
-
-=back
-
-=cut
 
 # note: should this module be compatible with Perl 5.005 or below?
 # currently we aren't...
@@ -128,10 +15,14 @@ use Exporter;
 use base qw/Exporter/;
 no utf8;
 
+# exportable constants
+
 use constant FROM_META        => 1;
 use constant FROM_BOM         => 2;
 use constant FROM_XMLDECL     => 3;
-use constant FROM_HEADER => 4;
+use constant FROM_HEADER      => 4;
+
+# BOM bytes to encoding name map
 
 use constant BOM_MAP => {
   qr/^(\x00\x00\xfe\xff)/, 'ISO-10646-UCS-4', # big endian
@@ -143,10 +34,15 @@ use constant BOM_MAP => {
   qr/^(\xef\xbb\xbf)/, 'UTF-8'
 };
 
+# export declarations
+
 our @EXPORT = qw/get_encoding/;
 our @EXPORT_OK = qw/FROM_HEADER FROM_BOM FROM_XMLDECL FROM_META/;
 our %EXPORT_TAGS = (constants => [ @EXPORT_OK ]);
-our $VERSION = 0.02;
+
+# our version :-)
+
+our $VERSION = 0.03;
 
 # EBCDIC to US-ASCII table for characters in the XML declaration
 
@@ -168,6 +64,17 @@ my %ebcdic2asciimap;
     6F 70 71 72 73 74 75 76 77 78 79 7A
 /;
 
+# private function to extract the charset parameter
+
+sub _extract_charset
+{
+  local $_ = shift;
+  return undef unless s/^.*?charset=(['"]?)//i;
+  if (length $1) { return lc $1 if m(^(.+?)\s*$1.*$)}
+  else           { return lc $1 if m(^([^\s;]+))   }
+  return undef;
+}
+
 sub get_encoding
 {
   my %vars = @_;
@@ -175,6 +82,8 @@ sub get_encoding
   # initialize defaults
 
   $vars{check_bom}     = 1 unless defined $vars{check_bom};
+
+  # check for BOM is default for XHTML documents
   $vars{check_bom}     = 1 if $vars{check_xmldecl};
   $vars{check_xmldecl} = 0 unless defined $vars{check_xmldecl};
   $vars{check_meta}    = 1 unless defined $vars{check_meta};
@@ -182,7 +91,8 @@ sub get_encoding
   my $bom_length = 0;
   my @encodings;
 
-  # check HTTP headers
+  # check in this order
+  # check HTTP/MIME headers
   # check the byte order mark
   # check XML declaration
   # check meta element
@@ -197,7 +107,7 @@ sub get_encoding
 
       my $charset = (grep { /^charset=/i } $vars{headers}->content_type)[0];
       if (defined $charset) {
-          my $e = $2 if $charset =~ /^charset=(['"]?)(.+)\1/i;
+          my $e = _extract_charset($charset);
           push @encodings, { source => FROM_HEADER, encoding => $e } if defined $e;
       }
   } elsif (defined $vars{headers} and
@@ -205,7 +115,7 @@ sub get_encoding
   {
       my $charset = $vars{headers}->get('content-type');
       if (defined $charset) {
-          my $e = $2 if $charset =~ /^charset=(['"]?)(.+)\1/i;
+          my $e = _extract_charset($charset);
           push @encodings, { source => FROM_HEADER, encoding => lc $e } if defined $e;
       }
   }
@@ -297,7 +207,7 @@ sub get_encoding
                 $xmldecl =~ s/\x00+//g if $concatenate;
               }
 
-              if ($xmldecl =~ m/encoding=['"](.*?)['"]/) {
+              if ($xmldecl =~ m/encoding\s*=\s*['"](.*?)['"]/) {
                   push @encodings, { source => FROM_XMLDECL, encoding => lc $1 };
               }
           }
@@ -305,42 +215,26 @@ sub get_encoding
   
       if ($vars{check_meta})
       {
-          # note: check if HTML::Parser is alread loaded
+          # note: check if HTML::HeadParser is alread loaded
   
-          eval { require HTML::Parser; };
-          unless ($@ or $HTML::Parser::VERSION < 3.21) {
+          eval { require HTML::HeadParser; };
+          unless ($@) {
   
-            my $p = HTML::Parser->new(
-              start_h => [sub { 
-                my $attrs = shift;
-                my $p = shift;
-  
-                if (exists $attrs->{'http-equiv'} and
-                    $attrs->{'http-equiv'} =~ /^\s*Content-Type\s*$/i and
-                    exists $attrs->{'content'})
-                {
-                    my $charset = (grep { /^charset=/i } split /\s*;\s*/, lc $attrs->{'content'})[0];
-                    if (defined $charset) {
-                        my $e = $2 if $charset =~ /^charset=(['"]?)(.+)\1/i;
-                        if (defined $e) {
-                            push @encodings, { source => FROM_META, encoding => lc $e };
-                            $p->eof;
-                        }
-                    }
-                }
-              }, 'attr, self']);
-            $p->report_tags('meta');
-  
-            # TODO: insure that we pass only ascii compatible
-            # characters to HTML::Parser; it cannot handle
-            # others; maybe HTML::Parser should do this and
-            # accept an encoding parameter; if we don't have
-            # any encoding information we are lost anyway; maybe
-            # this needs some customizable default we could
-            # recode from...
-  
-            $p->parse($vars{string});
-            $p->eof;
+              # TODO: insure that we pass only ascii compatible
+              # characters to HTML::HeadParser; it cannot handle
+              # others; maybe HTML::HeadParser should do this and
+              # accept an encoding parameter; if we don't have
+              # any encoding information we are lost anyway; maybe
+              # this needs some customizable default we could
+              # recode from...
+
+              my $p = HTML::HeadParser->new;
+              $p->parse($vars{string});
+              my $charset = $p->header('Content-Type');
+              if (defined $charset) {
+                  my $e = _extract_charset($charset);
+                  push @encodings, { source => FROM_META, encoding => $e } if defined $e;
+              }
           }
       }
   }
@@ -351,6 +245,119 @@ sub get_encoding
   return wantarray ? @encodings : $encodings[0]->{encoding};
 }
 
+1;
+__END__
+=head1 NAME
+
+HTML::Encoding - Determine the encoding of (X)HTML documents
+
+=head1 SYNOPSIS
+
+  use HTML::Encoding;
+  # ...
+  my $encoding = get_encoding
+
+    headers       => $r->headers,
+    string        => $r->content,
+    check_bom     => 1,
+    check_xmldecl => 0,
+    check_meta    => 1
+
+=head1 DESCRIPTION
+
+This module can be used to determine the encoding of HTML and XHTML files. It
+reports I<explicitly> given encoding informations, i.e.
+
+=over 2
+
+=item *
+
+the HTTP Content-Type headers charset parameter
+
+=item *
+
+the XML declaration
+
+=item *
+
+the byte order mark (BOM)
+
+=item *
+
+the meta element with http-equiv set to Content-Type
+
+=back
+
+=over 4
+
+=item get_encoding( %options )
+
+This function takes a hash as argument that stores all configuration
+options. The following are available:
+
+=over 4
+
+=item string
+
+A string containing the (X)HTML document. The function assumes that all
+possibly applied Content-(Transfer-)Encodings are removed.
+
+=item headers
+
+An HTTP::Headers or Mail::Header object to extract the Content-Type
+header. Please note that LWP::UserAgent stores header values from
+meta elements by default in the response header. To turn this of
+call the $ua->parse_head() method with a false value. get_encoding()
+always uses only the first given Content-Type: header; this should
+be the one given in the original HTTP header in most cases.
+
+=item check_xmldecl
+
+Checks the document for an XML declaration. If one is found, it tries to
+extract the value of the C<encoding> pseudo-attribute. Please note that
+the XML declaration must not be preceded by any character. The default is
+no.
+
+=item check_bom
+
+Checks the document for a byte order mark (BOM). The default is yes; it's
+always yes if check_xmldecl is set to a true value.
+
+=item check_meta
+
+Checks the document for a meta element like
+
+  <meta http-equiv='Content-Type'
+        content='text/html;charset=iso-8859-1'>
+
+using HTML::HeadParser (or does nothing if it fails to load
+that module). The default is yes.
+
+=back
+
+In list context it returns a list of hash refernces. Each hash references
+consists of two key/value pairs, e.g.
+
+  [
+    { source => 4, encoding => 'utf-8' },
+    { source => 1, encoding => 'utf-8' }
+  ]
+
+The source value is mapped to one of the constants FROM_META, FROM_BOM,
+FROM_XMLDECL and FROM_HEADER. You can import these constants solely
+into your namespace or using the C<:constants> symbol, e.g.
+
+  use HTML::Encoding ':constants';
+
+In scalar context it returns the value of the encoding key from the first
+entry in the list. The list is sorted according to the origin of the encoding
+information, see the list at the beginning of this document.
+
+If no I<explicit> encoding information is found, it returns undef. It's up to
+you to implement defaulting behaivour if this is applicable.
+
+=back
+
 =head1 BUGS
 
 =over 2
@@ -358,10 +365,15 @@ sub get_encoding
 =item *
 
 The module does not recode the content before passing
-it to C<HTML::Parser> (that only supports US-ASCII compatible
+it to C<HTML::HeadParser> (that only supports US-ASCII compatible
 encodings).
 
 =back
+
+=head1 WARNING
+
+This module is currently at alpha stage, please note that the interface
+may change in subsequent versions.
 
 =head1 SEE ALSO
 
@@ -401,6 +413,3 @@ modify it under the same terms as Perl itself.
 BjE<ouml>rn HE<ouml>hrmann E<lt>bjoern@hoehrmann.deE<gt>
 
 =cut
-
-1;
-__END__
