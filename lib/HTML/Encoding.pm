@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.52';
+our $VERSION = '0.53';
 
 our @EXPORT_OK =
 qw/
@@ -430,7 +430,7 @@ sub encoding_from_html_document
     my @first = encoding_from_first_chars($text, encodings => $encodings);
     
     # fall back to provided encoding list
-    @first = keys %$encodings unless @first;
+    @first = @$encodings unless @first;
     
     foreach my $try (@first)
     {
@@ -912,7 +912,7 @@ to C<qr{^.+/(?:.+\+)?xml$}i>.
 Regular expression matched against the content_type of the message
 to determine whether to use text/html rules for the message, defaults
 to C<qr{^text/(?:.+\+)?xml$}i>. This will only be checked if is_xml
-matches, too.
+matches aswell.
 
 =item html_default
 
