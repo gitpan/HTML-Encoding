@@ -6,9 +6,10 @@ WriteMakefile(
     VERSION_FROM      => 'lib/HTML/Encoding.pm', # finds $VERSION
     PREREQ_PM         => {
 
-      Encode => 0,              #
-      HTML::Parser => 0,        # todo: figure out proper version
+      Encode              => 0, #
+      HTML::Parser        => 0, # todo: figure out proper version
       HTTP::Headers::Util => 0, #
+      HTTP::Response      => 0, #
 
                          },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
