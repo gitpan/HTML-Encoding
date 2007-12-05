@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.53';
+our $VERSION = '0.54';
 
 our @EXPORT_OK =
 qw/
@@ -342,7 +342,10 @@ sub encoding_from_content_type
     my %data = @{(split_header_words($text))[0]};
     
     # extract first charset parameter if any
-    my $char = $data{charset};
+    my $char;
+    foreach my $param (keys %data) {
+      $char = $data{$param} and last if 'charset' eq lc $param;
+    }
 
     # no charset parameter    
     return unless defined $char;
