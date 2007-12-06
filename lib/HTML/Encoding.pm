@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.55';
+our $VERSION = '0.56';
 
 our @EXPORT_OK =
 qw/

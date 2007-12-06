@@ -8,8 +8,8 @@ BEGIN {
 };
 
 while (<DATA>) {
-  chomp;
   my ($name, $expect) = split ' ', $_, 2;
+  $expect =~ s/[\r\n]+$//g;
   my $path = File::Spec->catfile('tinput', 'http', $name);
   my $data = do { local $/; IO::File->new('<' . $path)->getline };
   my $message = HTTP::Response->parse($data);
