@@ -1,5 +1,10 @@
 Revision history for Perl extension HTML::Encoding.
 
+0.57  Wed Apr  9 03:55:00 2008
+	- updated the pitfyful README file
+	- fixed a performance problem in my_decode reported
+	  by Ville Skytta
+
 0.56  Wed Dec  6 06:25:00 2007
 	- updated changes file
 	- fixed line end issues in test

@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.56';
+our $VERSION = '0.57';
 
 our @EXPORT_OK =
 qw/
@@ -48,17 +48,13 @@ our %MAP =
 
 sub my_encode
 {
-    my $encoding = shift;
-    my $string = shift;
-    my $check = shift;
-    
     my $seq;
     
     eval
     {
-        $seq = Encode::encode($encoding,
-                              $string,
-                              $check);
+        $seq = Encode::encode($_[0],
+                              $_[1],
+                              $_[2]);
     };
     
     return $seq unless $@;
@@ -67,17 +63,13 @@ sub my_encode
 
 sub my_decode
 {
-    my $encoding = shift;
-    my $octets = shift;
-    my $check = shift;
-    
     my $str;
-    
+
     eval
     {
-        $str = Encode::decode($encoding,
-                              $octets,
-                              $check);
+        $str = Encode::decode($_[0],
+                              $_[1],
+                              $_[2]);
     };
     
     return $str unless $@;
@@ -91,7 +83,7 @@ sub make_character_map
     
     foreach my $sym (keys %MAP)
     {
-        my $seq = my_encode($encoding, $MAP{$sym}, Encode::FB_CROAK);
+        my $seq = my_encode($encoding, "$MAP{$sym}", Encode::FB_CROAK);
         $data{$sym} = $seq if defined $seq;
     }
     
@@ -979,6 +971,7 @@ yet undetermined ways.
   * bundle with test suite
   * optimize some routines to give up once successful
   * avoid transcoding for HTML::Parser if e.g. ISO-8859-1
+  * consider adding a "HTML5" modus of operation?
 
 =head1 SEE ALSO
 
@@ -997,7 +990,7 @@ yet undetermined ways.
 
 =head1 AUTHOR AND COPYRIGHT
 
-  Copyright (c) 2004 Bjoern Hoehrmann <bjoern@hoehrmann.de>.
+  Copyright (c) 2004-2008 Bjoern Hoehrmann <bjoern@hoehrmann.de>.
   This module is licensed under the same terms as Perl itself.
 
 =cut
