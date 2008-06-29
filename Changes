@@ -1,5 +1,9 @@
 Revision history for Perl extension HTML::Encoding.
 
+0.58  Sun Jun 29 19:55:00 2008
+	- List URI as dependency to prevent test failure
+	- Added LICENCE => 'perl' to Makefile.PL
+
 0.57  Wed Apr  9 03:55:00 2008
 	- updated the pitfyful README file
 	- fixed a performance problem in my_decode reported

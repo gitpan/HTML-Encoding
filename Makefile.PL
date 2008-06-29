@@ -10,9 +10,12 @@ WriteMakefile(
       HTML::Parser        => 0, # todo: figure out proper version
       HTTP::Headers::Util => 0, #
       HTTP::Response      => 0, #
+      URI                 => 0, #
 
                          },
     ($] >= 5.005 ?     ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM  => 'lib/HTML/Encoding.pm', # retrieve abstract from module
        AUTHOR         => 'Bjoern Hoehrmann <bjoern@hoehrmann.de>') : ()),
+
+    LICENSE           => 'perl',
 );
