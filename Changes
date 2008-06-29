@@ -1,5 +1,13 @@
 Revision history for Perl extension HTML::Encoding.
 
+0.59  Sun Jun 29 23:55:00 2008
+	- De-listed URI as dependency, not my bug
+	- added eg/detector.pl
+	- added t/98podsyn.t
+	- added t/99podcov.t
+	- added 'dist' options in Makefile.PL
+	- marked private subs with an underscore
+
 0.58  Sun Jun 29 19:55:00 2008
 	- List URI as dependency to prevent test failure
 	- Added LICENCE => 'perl' to Makefile.PL

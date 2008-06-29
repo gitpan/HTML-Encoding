@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                HTML-Encoding
-version:             0.58
+version:             0.59
 abstract:            Determine the encoding of HTML/XML/XHTML documents
 license:             perl
 author:              
@@ -12,7 +12,6 @@ requires:
     HTML::Parser:                  0
     HTTP::Headers::Util:           0
     HTTP::Response:                0
-    URI:                           0
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3

@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.58';
+our $VERSION = '0.59';
 
 our @EXPORT_OK =
 qw/
@@ -46,7 +46,7 @@ our %MAP =
     GT => ">", # fixme
 );
 
-sub my_encode
+sub _my_encode
 {
     my $seq;
     
@@ -61,7 +61,7 @@ sub my_encode
     return;
 }
 
-sub my_decode
+sub _my_decode
 {
     my $str;
 
@@ -76,14 +76,14 @@ sub my_decode
     return;
 }
 
-sub make_character_map
+sub _make_character_map
 {
     my $encoding = shift;
     my %data;
     
     foreach my $sym (keys %MAP)
     {
-        my $seq = my_encode($encoding, "$MAP{$sym}", Encode::FB_CROAK);
+        my $seq = _my_encode($encoding, "$MAP{$sym}", Encode::FB_CROAK);
         $data{$sym} = $seq if defined $seq;
     }
     
@@ -93,7 +93,7 @@ sub make_character_map
 # cache for U+XXXX octet sequences
 our %CHARACTER_MAP_CACHE = ();
 
-sub get_character_map
+sub _get_character_map
 {
     my $encoding = shift;
     
@@ -102,7 +102,7 @@ sub get_character_map
       if exists $CHARACTER_MAP_CACHE{$encoding};
     
     # new cache entry
-    my $map = make_character_map($encoding);
+    my $map = _make_character_map($encoding);
     $CHARACTER_MAP_CACHE{$encoding} = $map;
     
     # return new entry
@@ -148,7 +148,7 @@ sub encoding_from_meta_element
         return if $i > $leng;
         $data .= substr $text, $i, $size;
         $i += $size;
-        my_decode($enco, $data, Encode::FB_QUIET);
+        _my_decode($enco, $data, Encode::FB_QUIET);
     });
 
     my @resu;
@@ -178,7 +178,7 @@ sub xml_declaration_from_octets
 
     foreach my $e (@$encodings)
     {
-        my $map = get_character_map($e);
+        my $map = _get_character_map($e);
 
         # search for >
         my $end = index $text, $map->{GT};
@@ -193,7 +193,7 @@ sub xml_declaration_from_octets
         my $decl = substr $text, $str, $end - $str + 1;
         
         # decode XML declaration
-        my $deco = my_decode($e, $decl, Encode::FB_CROAK);
+        my $deco = _my_decode($e, $decl, Encode::FB_CROAK);
         
         # skip encoding if decoding failed
         next unless defined $deco;
@@ -225,7 +225,7 @@ sub encoding_from_first_chars
     my %resu;
     foreach my $e (@$encodings)
     {
-        my $m = get_character_map($e);
+        my $m = _get_character_map($e);
         my $i = index $text, $m->{LT};
         next unless $i >= 0;
         my $t = substr $text, 0, $i;
@@ -299,7 +299,7 @@ sub encoding_from_byte_order_mark
 
     foreach my $e (@$encodings)
     {
-        my $map = get_character_map($e);
+        my $map = _get_character_map($e);
         my $bom = $map->{BM};
         
         # encoding cannot encode U+FEFF
