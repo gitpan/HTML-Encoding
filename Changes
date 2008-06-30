@@ -1,5 +1,8 @@
 Revision history for Perl extension HTML::Encoding.
 
+0.60  Sun Jun 30 09:55:00 2008
+	- minor bugfixes
+
 0.59  Sun Jun 29 23:55:00 2008
 	- De-listed URI as dependency, not my bug
 	- added eg/detector.pl

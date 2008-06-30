@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.59';
+our $VERSION = '0.60';
 
 our @EXPORT_OK =
 qw/
@@ -988,7 +988,7 @@ yet undetermined ways.
   * Encode
   * HTML::Parser
 
-=head1 AUTHOR AND COPYRIGHT
+=head1 AUTHOR / COPYRIGHT / LICENSE
 
   Copyright (c) 2004-2008 Bjoern Hoehrmann <bjoern@hoehrmann.de>.
   This module is licensed under the same terms as Perl itself.

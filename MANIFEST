@@ -6,6 +6,7 @@ t/00basic.t
 t/01http.t
 t/98podsyn.t
 t/99podcov.t
+eg/detector.pl
 lib/HTML/Encoding.pm
 tinput/http/01
 tinput/http/02

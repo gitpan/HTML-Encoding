@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                HTML-Encoding
-version:             0.59
+version:             0.60
 abstract:            Determine the encoding of HTML/XML/XHTML documents
 license:             perl
 author:              
