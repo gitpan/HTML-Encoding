@@ -1,5 +1,8 @@
 Revision history for Perl extension HTML::Encoding.
 
+0.61  Fri Sep 24 00:00:00 2010
+	- Fixed https://rt.cpan.org/Ticket/Display.html?id=61603
+
 0.60  Sun Jun 30 09:55:00 2008
 	- minor bugfixes
 

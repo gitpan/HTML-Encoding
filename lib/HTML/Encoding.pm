@@ -8,7 +8,7 @@ use Encode              qw();
 
 use base qw(Exporter);
 
-our $VERSION = '0.60';
+our $VERSION = '0.61';
 
 our @EXPORT_OK =
 qw/
@@ -157,6 +157,7 @@ sub encoding_from_meta_element
     {
         my %hash = %{$_->[1]};
         next unless defined $hash{'content'};
+        next unless exists $hash{'http-equiv'};
         next unless lc $hash{'http-equiv'} eq "content-type";
         my $char = encoding_from_content_type($hash{'content'});
         push @resu, $char if defined $char and length $char;
